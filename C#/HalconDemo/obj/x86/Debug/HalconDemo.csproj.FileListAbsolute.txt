@@ -1,0 +1,5 @@
+E:\原廠程式_純COD\C#\HalconDemo\obj\x86\Debug\HalconDemo.csprojAssemblyReference.cache
+E:\原廠程式_純COD\C#\HalconDemo\obj\x86\Debug\HalconDemo.HalconDemo.resources
+E:\原廠程式_純COD\C#\HalconDemo\obj\x86\Debug\HalconDemo.Properties.Resources.resources
+E:\原廠程式_純COD\C#\HalconDemo\obj\x86\Debug\HalconDemo.csproj.GenerateResource.cache
+E:\原廠程式_純COD\C#\HalconDemo\obj\x86\Debug\HalconDemo.csproj.CoreCompileInputs.cache
