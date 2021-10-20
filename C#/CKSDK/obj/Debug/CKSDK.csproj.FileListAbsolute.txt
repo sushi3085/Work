@@ -1,0 +1,11 @@
+C:\Users\Ben Hsu\Downloads\Demo_new\Demo\C#\CKSDK\bin\Debug\CKSDK.dll
+C:\Users\Ben Hsu\Downloads\Demo_new\Demo\C#\CKSDK\bin\Debug\CKSDK.pdb
+C:\Users\Ben Hsu\Downloads\Demo_new\Demo\C#\CKSDK\obj\Debug\CKSDK.csprojAssemblyReference.cache
+C:\Users\Ben Hsu\Downloads\Demo_new\Demo\C#\CKSDK\obj\Debug\CKSDK.dll
+C:\Users\Ben Hsu\Downloads\Demo_new\Demo\C#\CKSDK\obj\Debug\CKSDK.pdb
+D:\視覺Demo\原廠程式\Demo\C#\CKSDK\bin\Debug\CKSDK.dll
+D:\視覺Demo\原廠程式\Demo\C#\CKSDK\bin\Debug\CKSDK.pdb
+D:\視覺Demo\原廠程式\Demo\C#\CKSDK\obj\Debug\CKSDK.csprojAssemblyReference.cache
+D:\視覺Demo\原廠程式\Demo\C#\CKSDK\obj\Debug\CKSDK.csproj.CoreCompileInputs.cache
+D:\視覺Demo\原廠程式\Demo\C#\CKSDK\obj\Debug\CKSDK.dll
+D:\視覺Demo\原廠程式\Demo\C#\CKSDK\obj\Debug\CKSDK.pdb
