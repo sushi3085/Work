@@ -61,7 +61,7 @@ namespace HalconDemo
                 // 獲取畫面的統計資訊
                 // 而獲取這些資訊需要知道是哪一台相機(為了能夠識別)，故將 m_hCamera 也就是現在的相機資訊告知給 CameraGetFrameStatistic
                 // 就可以透過 CameraGetFrameStatistic 拿到剛剛給定的相機的禎數資訊(畫面每秒更新數)，並將其記錄在 curFS 之中。
-                // 而其中 curFS 又包括1.每秒的總畫面刷新次數 2.丟失的畫面數量 3.有效用的禎數
+                // 而其中 curFS 又包括1.每秒的總畫面刷新次數 2.每秒丟失的畫面數量 3.每秒有效用的禎數
                 CKAPI.CameraGetFrameStatistic(m_hCamera, out curFS);
                 if (FrameTimeCur != 0)
                 {
@@ -111,6 +111,7 @@ namespace HalconDemo
                 // 並輸出飽和度更高(綠者更綠、紅者更紅)
                 // 顏色校正(讓畫面顏色更貼近真實)
                 // 降噪處理後的圖像
+                // 
                 CKAPI.CameraGetOutImageBuffer(m_hCamera, ref ImageInfo, pbyBuffer, pRGBFrame);
                 DispFrameNum++;
                 if (m_isNeedSave)
@@ -126,7 +127,7 @@ namespace HalconDemo
                 //使用halcon窗口进行显示
                 HD.display(pRGBFrame, (int)ImageInfo.iWidth, (int)ImageInfo.iHeight, 2592, 1944);
 
-                // 4.優化儲存空間，釋放[2.]存放之畫面所佔有的空間
+                // 4.優化儲存空間，釋放在[2.]時候存放之畫面所佔有的空間
                 // 釋放由 CameraGetRawImageBuffer 獲得的緩衝區
                 CKAPI.CameraReleaseFrameHandle(m_hCamera, hBuf);
             }
@@ -145,7 +146,7 @@ namespace HalconDemo
 
             // 1.取得當前探測到的設備數目，並將數目記錄到 devNum，將狀態(成功與否)記錄到 status
             status = CKAPI.CameraEnumerateDevice(out devNum);
-            // 若此時狀態(成功與否)，是失敗的，則不繼續執行後續的指令。
+            // 若此時狀態是失敗的，則不繼續執行後續的指令。
             if (status != CameraSdkStatus.CAMERA_STATUS_SUCCESS)
                 return;
 
@@ -154,7 +155,7 @@ namespace HalconDemo
             {
                 tDevEnumInfo devAllInfo;
                 // 獲得設備的狀態資料，如：設備是否開啟、設備的版本、設備的系列、名稱等等......
-                // 並將儲存在。將成功於否存在 status
+                // 並將查詢設備時的狀態(成功於否)儲存在 status
                 status = CKAPI.CameraGetEnumIndexInfo(i, out devAllInfo);
                 if (status != CameraSdkStatus.CAMERA_STATUS_SUCCESS)
                     continue;
@@ -168,18 +169,18 @@ namespace HalconDemo
         private void CameraSetting()
         {
             // Sets the activation page of the camera configuration window
-            // 1. 設定 相機建置視窗 的啟用面板
+            // 1. 設定 相機校調視窗 的啟用面板
 
-            // 1. 在創建啟動畫面前，先設定"相機設置視窗"的啟動畫面。(但若此前置作業發生異常，則不繼續執行後續指令。)
-            // 2. 設定完"相機設置視窗"的啟動畫面後，創建一個新的相機設置視窗。(但若創建設置視窗時發生異常，則不繼續執行後續指令。)
-            // 最後，將創建好的"相機設置視窗"顯示出來。
+            // 1. 在創建啟動畫面前，先設定"相機校調視窗"的啟動畫面。(但若此前置作業發生異常，則不繼續執行後續指令。)
+            // 2. 設定完"相機校調視窗"的啟動畫面後，創建一個新的相機設置視窗。(但若創建設置視窗時發生異常，則不繼續執行後續指令。)
+            // 最後，將創建好的"相機校調視窗"顯示出來。
             if (m_hCamera != IntPtr.Zero)
             {
                 if (CKAPI.CameraSetActivePage(m_hCamera, emSettingPage.SETTING_PAGE_ALL, 0) != CameraSdkStatus.CAMERA_STATUS_SUCCESS)
                     return;
                 if (CKAPI.CameraCreateSettingPageEx(m_hCamera) != CameraSdkStatus.CAMERA_STATUS_SUCCESS)
                     return;
-                // 否則，若創建新的 相機設置視窗 時發生異常，
+                // 否則，若創建新的 相機校調視窗 時發生異常，
                 CKAPI.CameraShowSettingPage(m_hCamera, 1);
             }
         }
@@ -193,13 +194,16 @@ namespace HalconDemo
             if (index < 0)
                 return false;
             // 初始化選單中所勾選的裝置，並獲取剛剛初始化的裝置的位址訊息
+            // 並同時獲取選單中所勾選相機的資訊(並存入 m_hCamera 之中)。
+            // 若在獲取過程中有異常，則不繼續執行後續指令。
             CameraSdkStatus status = CKAPI.CameraInit(out m_hCamera, index);
             if (status != CameraSdkStatus.CAMERA_STATUS_SUCCESS)
             {
                 m_hCamera = IntPtr.Zero;
                 return false;
             }
-            // 設定 相機畫面做影像處理時 的模式
+            // 設定將相機畫面做影像處理時的模式
+            // 告知 CameraSetIspOutFormat 所要設定的相機(其資訊儲存在 m_hCamera 之中)、所設定的模式(這裡是 emCameraMediaType.CAMERA_MEDIA_TYPE_RGB8 模式)
             CKAPI.CameraSetIspOutFormat(m_hCamera, emCameraMediaType.CAMERA_MEDIA_TYPE_RGB8);
 
             // 新建视频播放线程
