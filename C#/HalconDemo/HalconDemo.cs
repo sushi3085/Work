@@ -85,8 +85,10 @@ namespace HalconDemo
                     lastFS = curFS;
                 }
 
-                // 1.先取得相機畫面
-                // 取得由黑、白、及不同程度的灰色，所組成的相機灰階畫面
+                // 1.先取得相機畫面的資訊
+                // 設定：如果1秒鐘沒有獲得畫面資訊，則會丟出一則逾時訊息。
+                // 隨後取得由黑、白、及不同程度的灰色，所組成的相機灰階畫面。
+                // 並獲得拜耳轉換後的畫面，也就是將灰階畫面演算成彩色畫面，之後
                 status = CKAPI.CameraGetRawImageBuffer(m_hCamera, out hBuf, 1000);
                 if (status != CameraSdkStatus.CAMERA_STATUS_SUCCESS)
                 {
@@ -94,7 +96,10 @@ namespace HalconDemo
                     continue;
                 }
 
-                // 2.取得存放畫面處的位址  (取得其緩衝區地址)
+                // 2.取得相機的畫面
+                // 而這個過程需要傳入用來區分相機的資訊，也就是 m_hCamera，
+                // 以及影像存放哪裡，也就是 hBuf
+                // 然後獲得影像資訊，如：畫面長度寬度、曝光時長、檔案大小。存於 ImageInfo
                 pbyBuffer = CKAPI.CameraGetImageInfo(m_hCamera, hBuf, out ImageInfo);
                 //获得经 ISP 处理的 RGB 数据
                 //////////////////////////////////
