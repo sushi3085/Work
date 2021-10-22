@@ -58,8 +58,10 @@ namespace Player
             CKAPI.CameraPlay(m_hCamera);
             while (!m_bExit)
             {
-                // 獲取畫面的統計資訊
-                // 其中包括每秒的畫面刷新次數、可能因網速不穩而引發畫面丟失的數量、或雜訊太多的畫面數量
+                // 獲取畫面刷新的統計資訊
+                // 而獲取這些資訊需要知道是哪一台相機(為了能夠識別)，故將 m_hCamera 也就是現在的相機資訊告知給 CameraGetFrameStatistic
+                // 就可以透過 CameraGetFrameStatistic 拿到剛剛給定的相機的禎數資訊(畫面每秒更新數)，並將其記錄在 curFS 之中。
+                // 而其中 curFS 又包括1.每秒的總畫面刷新次數 2.每秒丟失的畫面數量 3.每秒有效用的禎數
                 CKAPI.CameraGetFrameStatistic(m_hCamera, out curFS);
                 if (FrameTimeCur != 0)
                 {
