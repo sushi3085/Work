@@ -84,6 +84,8 @@ namespace Player
                 }
 
                 //获取 RAW 数据
+                // 1.先取得相機畫面
+                // 取得由黑、白、及不同程度的灰色，所組成的相機灰階畫面
                 status = CKAPI.CameraGetRawImageBuffer(m_hCamera, out hBuf, 1000);
                 if (status != CameraSdkStatus.CAMERA_STATUS_SUCCESS)
                 {
@@ -94,6 +96,9 @@ namespace Player
                 //获得图像缓冲区地址
                 pbyBuffer = CKAPI.CameraGetImageInfo(m_hCamera, hBuf, out ImageInfo);
                 //获得经 ISP 处理的 RGB 数据
+                // 將影像經過 Image Signal Processor 處理後
+                // 如：
+                // 儲存於 ImageInfo 
                 //////////////////////////////////
                 if (dRGBBufLen < (ImageInfo.iWidth * ImageInfo.iHeight * 4))
                 {
@@ -176,7 +181,9 @@ namespace Player
             int index = this.comboBox_DeviceList.SelectedIndex;
             if (index < 0)
                 return false;
-            // 初始化设备，返回设备句柄
+            // 初始化選單中所勾選的裝置，並獲取剛剛初始化的裝置的位址訊息
+            // 並同時獲取選單中所勾選相機的資訊(並存入 m_hCamera 之中)。
+            // 若在獲取過程中有異常，則不繼續執行後續指令。
             CameraSdkStatus status = CKAPI.CameraInit(out m_hCamera, index);
             if(status != CameraSdkStatus.CAMERA_STATUS_SUCCESS)
             {
@@ -187,14 +194,15 @@ namespace Player
             status = CKAPI.CameraSetIspOutFormat(m_hCamera, emCameraMediaType.CAMERA_MEDIA_TYPE_BGR8);
             // 初始化播放显示，设置显示图像的控件句柄
             status = CKAPI.CameraDisplayInit(m_hCamera, this.pictureBox.Handle);
+            
+            // 再關閉相機、並釋放電腦中儲存相機相關資訊所花費的空間、讓空間可以重新利用。
             if(status != CameraSdkStatus.CAMERA_STATUS_SUCCESS)
             {
-                // 將句柄反初始化，釋放資源
                 CKAPI.CameraUnInit(m_hCamera);
                 m_hCamera = IntPtr.Zero;
                 return false;
             }
-            // 設定顯示的句柄及模式
+            // 設定哪台相機顯示，及其顯示的模式
             CKAPI.CameraSetDisplayMode(m_hCamera, 0);
 
             // 新建视频播放线程
@@ -215,7 +223,8 @@ namespace Player
                     Thread.Sleep(10);
                 m_CapThread = null;
             }
-            // 关闭相机句柄
+            // 再關閉相機、並釋放電腦中儲存相機相關資訊所花費的空間、讓空間可以重新利用。
+            // 再將注視著的相機不注視
             if(m_hCamera != IntPtr.Zero)
             {
                 CKAPI.CameraUnInit(m_hCamera);
