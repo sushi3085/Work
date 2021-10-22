@@ -86,8 +86,10 @@ namespace Player
                 }
 
                 //获取 RAW 数据
-                // 1.先取得相機畫面
-                // 取得由黑、白、及不同程度的灰色，所組成的相機灰階畫面
+                // 1.先取得相機畫面的資訊
+                // 設定：如果1秒鐘沒有獲得畫面資訊，則會產生逾時錯誤。
+                // 隨後取得由黑、白、及不同程度的灰色，所組成的相機灰階畫面。
+                // 並獲得拜耳轉換後的畫面，也就是將灰階畫面演算成彩色畫面，之後
                 status = CKAPI.CameraGetRawImageBuffer(m_hCamera, out hBuf, 1000);
                 if (status != CameraSdkStatus.CAMERA_STATUS_SUCCESS)
                 {
@@ -96,7 +98,12 @@ namespace Player
                 }
 
                 //获得图像缓冲区地址
+                // 2.取得相機的畫面
+                // 而這個過程需要傳入用來區分相機的資訊，也就是 m_hCamera，
+                // 以及影像存放哪裡，也就是 hBuf
+                // 然後獲得影像資訊，如：畫面長度寬度、曝光時長、檔案大小。存於 ImageInfo
                 pbyBuffer = CKAPI.CameraGetImageInfo(m_hCamera, hBuf, out ImageInfo);
+                
                 //获得经 ISP 处理的 RGB 数据
                 // 將影像經過 Image Signal Processor 處理後
                 // 如：
@@ -111,6 +118,13 @@ namespace Player
                 }
                 m_uWidth = ImageInfo.iWidth;
                 m_uHeight = ImageInfo.iHeight;
+
+                // 3.優化畫面。
+                // 傳入相機(m_hCamera)、待處理影像的檔案格式(ImageInfo)、影像處理後所要輸出至何處的資訊
+                // 也就是處理獲取的原始圖像，
+                // 並輸出飽和度更高(綠者更綠、紅者更紅)
+                // 顏色校正(讓畫面顏色更貼近真實)
+                // 降噪(雜訊)處理後的圖像
                 CKAPI.CameraGetOutImageBuffer(m_hCamera, ref ImageInfo, pbyBuffer, pRGBFrame);
                 DispFrameNum++;
                 if (m_isNeedSave)
@@ -120,6 +134,10 @@ namespace Player
                     m_isNeedSave = false;
                 }
                 //////////////////////////////////显示
+                // 顯示影像
+                // 傳入相機的資訊(m_hCamera)、
+                // 電腦中儲存影像的位址(pRGBFrame)、
+                // 影像的相關資訊(ImageInfo)如資料大小，解析度等等......
                 CKAPI.CameraDisplay(m_hCamera, pRGBFrame, ref ImageInfo);
                 //释放由 CameraGetRawImageBuffer 获得的缓冲区
                 CKAPI.CameraReleaseFrameHandle(m_hCamera, hBuf);
@@ -184,7 +202,7 @@ namespace Player
             if (index < 0)
                 return false;
             // 初始化選單中所勾選的裝置，並獲取剛剛初始化的裝置的位址訊息
-            // 並同時獲取選單中所勾選相機的資訊(並存入 m_hCamera 之中)。
+            // 獲取選單中所勾選相機資訊的同時，將訊息存入 m_hCamera 之中。
             // 若在獲取過程中有異常，則不繼續執行後續指令。
             CameraSdkStatus status = CKAPI.CameraInit(out m_hCamera, index);
             if(status != CameraSdkStatus.CAMERA_STATUS_SUCCESS)
@@ -192,7 +210,9 @@ namespace Player
                 m_hCamera = IntPtr.Zero;
                 return false;
             }
-            // 设置ISP输出格式
+            // 設定ISP輸出格式
+            // ISP是相機在處理影像時的核心流程，
+            // 這裡需要傳入"哪個相機"需要被設定(m_hCamera)，以及要設定成何種輸出模式，如普通彩色影像或具透明的彩色影像等等......
             status = CKAPI.CameraSetIspOutFormat(m_hCamera, emCameraMediaType.CAMERA_MEDIA_TYPE_BGR8);
             // 初始化播放显示，设置显示图像的控件句柄
             status = CKAPI.CameraDisplayInit(m_hCamera, this.pictureBox.Handle);

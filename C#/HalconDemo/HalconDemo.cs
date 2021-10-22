@@ -112,11 +112,11 @@ namespace HalconDemo
                 m_uHeight = ImageInfo.iHeight;
 
                 // 3.優化畫面。
-                // 處理獲取的原始圖像，
+                // 傳入相機、待處理影像的格式(副檔名)、影像處理後所要輸出至何處的資訊
+                // 也就是處理獲取的原始圖像，
                 // 並輸出飽和度更高(綠者更綠、紅者更紅)
                 // 顏色校正(讓畫面顏色更貼近真實)
-                // 降噪處理後的圖像
-                // 
+                // 降噪(雜訊)處理後的圖像
                 CKAPI.CameraGetOutImageBuffer(m_hCamera, ref ImageInfo, pbyBuffer, pRGBFrame);
                 DispFrameNum++;
                 if (m_isNeedSave)

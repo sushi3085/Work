@@ -1,18 +1,83 @@
 CameraPlay
+// m_hCamera 代表著當前相機的訊息
+// 而顯示相機畫面的CameraPlay，需要知道哪部相機的畫面需要被顯示，故將 m_hCamera 告知給 CameraPlay
+// 開始接收相機的訊息，並顯示畫面
+
 CameraGetFrameStatistic
+// 獲取畫面刷新的統計資訊
+// 而獲取這些資訊需要知道是哪一台相機(為了能夠識別)，故將 m_hCamera 也就是現在的相機資訊告知給 CameraGetFrameStatistic
+// 就可以透過 CameraGetFrameStatistic 拿到剛剛給定的相機的禎數資訊(畫面每秒更新數)，並將其記錄在 curFS 之中。
+// 而其中 curFS 又包括1.每秒的總畫面刷新次數 2.每秒丟失的畫面數量 3.每秒有效用的禎數
+
 CameraGetRawImageBuffer
+// 1.先取得相機影像的資訊
+// 可以設置逾時時間，這裡是1秒鐘內沒有獲得畫面資訊，則會產生逾時錯誤。
+// 隨後獲得拜耳轉換後的畫面，也就是將灰階畫面演算成彩色畫面。
+// 之後將影像以"地址"的形式輸出，意即，輸出電腦中存放影像的位址，並存入 hBuf。
+
+
 CameraGetImageInfo
+// 2.取得指定相機的畫面訊息
+// 而這個過程需要傳入用以區分相機的資訊，也就是 m_hCamera，
+// 以及傳入影像存放的地址，也就是 hBuf
+// 然後獲得影像資訊，如：畫面長度寬度、曝光時長、檔案大小。存於 ImageInfo
+
 CameraGetOutImageBuffer
+// 3.優化畫面。
+// 傳入相機、待處理影像的格式(副檔名)、影像處理後所要輸出至何處的資訊
+// 也就是處理獲取的原始圖像，
+// 並輸出飽和度更高(綠者更綠、紅者更紅)
+// 顏色校正(讓畫面顏色更貼近真實)
+// 降噪(雜訊)處理後的圖像
+
 CameraDisplay
+
+
+
 CameraReleaseFrameHandle
+
+
+
 CameraPause
+
+
+
 CameraEnumerateDevice
+
+
+
 CameraGetEnumIndexInfo
+
+
+
 CameraSetActivePage
+
+
+
 CameraCreateSettingPageEx
+
+
+
 CameraShowSettingPage
+
+
+
 CameraInit
+
+
+
 CameraSetIspOutFormat
+// 設定ISP輸出格式
+// ISP是相機在處理影像時的核心流程，
+// 這裡需要傳入"哪個相機"需要被設定(m_hCamera)，以及要設定成何種輸出模式，如普通彩色影像或具透明的彩色影像等等......
+
+
 CameraDisplayInit
+
+
+
 CameraUnInit
+
+
+
 CameraSetDisplayMode
