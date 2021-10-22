@@ -86,10 +86,10 @@ namespace Player
                 }
 
                 //获取 RAW 数据
-                // 1.先取得相機畫面的資訊
-                // 設定：如果1秒鐘沒有獲得畫面資訊，則會產生逾時錯誤。
-                // 隨後取得由黑、白、及不同程度的灰色，所組成的相機灰階畫面。
-                // 並獲得拜耳轉換後的畫面，也就是將灰階畫面演算成彩色畫面，之後
+                // 1.先取得相機影像的資訊
+                // 可以設置逾時時間，這裡是1秒鐘內沒有獲得畫面資訊，則會產生逾時錯誤。
+                // 隨後獲得拜耳轉換後的畫面，也就是將灰階畫面演算成彩色畫面。
+                // 之後將影像以"地址"的形式輸出，意即，輸出電腦中某處存有該影像的位址，並存入 hBuf。
                 status = CKAPI.CameraGetRawImageBuffer(m_hCamera, out hBuf, 1000);
                 if (status != CameraSdkStatus.CAMERA_STATUS_SUCCESS)
                 {
@@ -139,9 +139,14 @@ namespace Player
                 // 電腦中儲存影像的位址(pRGBFrame)、
                 // 影像的相關資訊(ImageInfo)如資料大小，解析度等等......
                 CKAPI.CameraDisplay(m_hCamera, pRGBFrame, ref ImageInfo);
-                //释放由 CameraGetRawImageBuffer 获得的缓冲区
+
+                // 由於剛才已經獲得優化過的影像了，
+                // 故將處理前之影像獨佔在電腦裡空間的位址釋放掉，以便空間在未來重複利用
+                // (釋放一開始從 CameraGetRawImageBuffer 拿到的原始影像，儲存其資料的地址。
                 CKAPI.CameraReleaseFrameHandle(m_hCamera, hBuf);
             }
+            // 將待暫停相機的資訊傳入，暫停相機影像顯示系統的運作。
+            // 執行後會得到一個數值，用以代表執行期間的狀態(如：是否遇到異常)。
             CKAPI.CameraPause(m_hCamera);
 
             if(pRGBFrame != IntPtr.Zero)
@@ -159,7 +164,8 @@ namespace Player
             //tSdkCameraDevInfo[] tCameraDevInfoList;
             int devNum = 0;
 
-            // 1.取得當前探測到的設備數目
+            // 1.取得當前探測到的設備數量，並將結果存到 devNum 之中
+            // 探測結束後回傳一個數值，以代表探測過程中的狀態，並儲存到 status 之中
             status = CKAPI.CameraEnumerateDevice(out devNum);
             if (status != CameraSdkStatus.CAMERA_STATUS_SUCCESS)
                 return;
@@ -168,6 +174,7 @@ namespace Player
             {
                 tDevEnumInfo devAllInfo;
                 // 獲得設備的狀態，如：有無找到設備、設備是否正常開啟，是否關閉等等。
+                // 並存入 devAllInfo 之中
                 status = CKAPI.CameraGetEnumIndexInfo(i, out devAllInfo);
                 if (status != CameraSdkStatus.CAMERA_STATUS_SUCCESS)
                     continue;

@@ -85,10 +85,10 @@ namespace HalconDemo
                     lastFS = curFS;
                 }
 
-                // 1.先取得相機畫面的資訊
-                // 設定：如果1秒鐘沒有獲得畫面資訊，則會產生逾時錯誤。
-                // 隨後取得由黑、白、及不同程度的灰色，所組成的相機灰階畫面。
-                // 並獲得拜耳轉換後的畫面，也就是將灰階畫面演算成彩色畫面，之後
+                // 1.先取得相機影像的資訊
+                // 可以設置逾時時間，這裡是1秒鐘內沒有獲得畫面資訊，則會產生逾時錯誤。
+                // 隨後獲得拜耳轉換後的畫面，也就是將灰階畫面演算成彩色畫面。
+                // 之後將影像以"地址"的形式輸出，意即，輸出電腦中某處存有該影像的位址，並存入 hBuf。
                 status = CKAPI.CameraGetRawImageBuffer(m_hCamera, out hBuf, 1000);
                 if (status != CameraSdkStatus.CAMERA_STATUS_SUCCESS)
                 {

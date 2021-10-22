@@ -13,7 +13,7 @@ CameraGetRawImageBuffer
 // 1.先取得相機影像的資訊
 // 可以設置逾時時間，這裡是1秒鐘內沒有獲得畫面資訊，則會產生逾時錯誤。
 // 隨後獲得拜耳轉換後的畫面，也就是將灰階畫面演算成彩色畫面。
-// 之後將影像以"地址"的形式輸出，意即，輸出電腦中存放影像的位址，並存入 hBuf。
+// 之後將影像以"地址"的形式輸出，意即，輸出電腦中某處存有該影像的位址，並存入 hBuf。
 
 
 CameraGetImageInfo
@@ -31,20 +31,23 @@ CameraGetOutImageBuffer
 // 降噪(雜訊)處理後的圖像
 
 CameraDisplay
-
-
+// 顯示影像
+// 傳入相機的資訊(m_hCamera)、
+// 電腦中儲存影像的位址(pRGBFrame)、
+// 影像的相關資訊(ImageInfo)如資料大小，解析度等等......
 
 CameraReleaseFrameHandle
-
-
+// 由於剛才已經獲得優化過的影像了，
+// 故將處理前之影像獨佔在電腦裡空間的位址釋放掉，以便空間在未來重複利用
+// (釋放一開始從 CameraGetRawImageBuffer 拿到的原始影像，儲存其資料的地址。
 
 CameraPause
-
-
+// 將待暫停相機的資訊傳入，暫停相機影像顯示系統的運作。
+// 執行後會得到一個數值，用以代表執行期間的狀態(如：是否遇到異常)。
 
 CameraEnumerateDevice
-
-
+// 1.取得當前探測到的設備數量，並將結果存到 devNum 之中
+// 探測結束後回傳一個數值，以代表探測過程中的狀態，並儲存到 status 之中
 
 CameraGetEnumIndexInfo
 
