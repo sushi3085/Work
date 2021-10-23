@@ -50,37 +50,42 @@ CameraEnumerateDevice
 // 探測結束後回傳一個數值，以代表探測過程中的狀態，並儲存到 status 之中
 
 CameraGetEnumIndexInfo
-
-
+// 查詢設備的狀態，如：有無找到設備、設備是否正常開啟，是否關閉、產品名稱、暱稱，驅動名稱、版本等等。
+// 並將獲得的訊息存入 devAllInfo 之中
+// 隨後回傳一個代表查詢過程狀態的狀態碼，儲存在 status 之中
 
 CameraSetActivePage
-
-
+// 傳入將要被設定的相機(m_hCamera)，以及想要呈現哪些訊息(emSettingPage.SETTING_PAGE_ALL)，
+// 還有呈現訊息的視窗在其他視窗間的顯示順序編號(如此處為第一順位)
 
 CameraCreateSettingPageEx
-
-
+// 傳入相機的相關資訊，並創建該相機的"相機訊息視窗"，
+// 且會回傳在創建過程中的狀態(若狀態為異常，則不繼續執行後續指令)
 
 CameraShowSettingPage
-
-
+// 傳入相機的資訊，以及是否顯示該視窗，此處是選擇顯示(傳入1則顯示)
 
 CameraInit
+// 傳入即將初始化相機在其他相機之間的順位編號，初始化選單中所勾選的裝置，並獲取剛剛初始化的裝置的訊息(存放在電腦中的位址)
+// 獲取選單中所勾選相機資訊的同時，將訊息存入 m_hCamera 之中
+// 若在獲取過程中有異常，則不繼續執行後續指令。asldkj
 
-
-
+=============
 CameraSetIspOutFormat
-// 設定ISP輸出格式
-// ISP是相機在處理影像時的核心流程，
+// 設定影像處理的輸出格式
 // 這裡需要傳入"哪個相機"需要被設定(m_hCamera)，以及要設定成何種輸出模式，如普通彩色影像或具透明的彩色影像等等......
-
+// 此處是設定成BGR三原色所組成的彩色影像
 
 CameraDisplayInit
-
-
+// 初始化顯示系統
+// 傳入待顯示相機之資訊，以及要顯示於哪個視窗中(此處為顯示在this.pictureBox.Handle)。
 
 CameraUnInit
-
-
+// 若初始化的狀態為異常，則關閉相機、並釋放電腦中儲存相機相關資訊所花費的空間、讓空間可以重新利用。
+// 且不執行後續指令
 
 CameraSetDisplayMode
+// 設定哪台相機顯示，及其顯示的模式
+
+CameraSetIspOutFormat
+// 設定傳入相機顯示的模式

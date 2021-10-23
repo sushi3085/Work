@@ -159,8 +159,9 @@ namespace HalconDemo
             for (int i = 0; i < devNum; i++)
             {
                 tDevEnumInfo devAllInfo;
-                // 獲得設備的狀態資料，如：設備是否開啟、設備的版本、設備的系列、名稱等等......
-                // 並將查詢設備時的狀態(成功於否)儲存在 status
+                // 查詢設備的狀態，如：有無找到設備、設備是否正常開啟，是否關閉、產品名稱、暱稱，驅動名稱、版本等等。
+                // 並將獲得的訊息存入 devAllInfo 之中
+                // 隨後回傳一個代表查詢過程狀態的狀態碼，儲存在 status 之中
                 status = CKAPI.CameraGetEnumIndexInfo(i, out devAllInfo);
                 if (status != CameraSdkStatus.CAMERA_STATUS_SUCCESS)
                     continue;
@@ -181,11 +182,13 @@ namespace HalconDemo
             // 最後，將創建好的"相機校調視窗"顯示出來。
             if (m_hCamera != IntPtr.Zero)
             {
+                // 傳入將要被設定的相機(m_hCamera)，以及想要呈現哪些訊息(emSettingPage.SETTING_PAGE_ALL)，還有呈現訊息的視窗在其他視窗間的顯示順序編號(如此處為第一順位)
                 if (CKAPI.CameraSetActivePage(m_hCamera, emSettingPage.SETTING_PAGE_ALL, 0) != CameraSdkStatus.CAMERA_STATUS_SUCCESS)
                     return;
+                // 傳入相機的相關資訊，並創建該相機的"相機訊息視窗"，且會回傳在創建過程中的狀態(若狀態為異常，則不繼續執行後續指令)
                 if (CKAPI.CameraCreateSettingPageEx(m_hCamera) != CameraSdkStatus.CAMERA_STATUS_SUCCESS)
                     return;
-                // 否則，若創建新的 相機校調視窗 時發生異常，
+                // 傳入相機的資訊，以及是否顯示該視窗，此處是選擇顯示(傳入1則顯示)
                 CKAPI.CameraShowSettingPage(m_hCamera, 1);
             }
         }
@@ -198,8 +201,8 @@ namespace HalconDemo
             int index = this.comboBox_DeviceList.SelectedIndex;
             if (index < 0)
                 return false;
-            // 初始化選單中所勾選的裝置，並獲取剛剛初始化的裝置的位址訊息
-            // 並同時獲取選單中所勾選相機的資訊(並存入 m_hCamera 之中)。
+            // 傳入即將初始化相機在其他相機之間的順位編號，初始化選單中所勾選的裝置，並獲取剛剛初始化的裝置的訊息(存放在電腦中的位址)
+            // 獲取選單中所勾選相機資訊的同時，將訊息存入 m_hCamera 之中
             // 若在獲取過程中有異常，則不繼續執行後續指令。
             CameraSdkStatus status = CKAPI.CameraInit(out m_hCamera, index);
             if (status != CameraSdkStatus.CAMERA_STATUS_SUCCESS)
@@ -207,8 +210,9 @@ namespace HalconDemo
                 m_hCamera = IntPtr.Zero;
                 return false;
             }
-            // 設定將相機畫面做影像處理時的模式
-            // 告知 CameraSetIspOutFormat 所要設定的相機(其資訊儲存在 m_hCamera 之中)、所設定的模式(這裡是 emCameraMediaType.CAMERA_MEDIA_TYPE_RGB8 模式)
+            // 設定影像處理的輸出格式
+            // 這裡需要傳入"哪個相機"需要被設定(m_hCamera)，以及要設定成何種輸出模式，如普通彩色影像或具透明的彩色影像等等......
+            // 此處是設定成BGR三原色所組成的彩色影像
             CKAPI.CameraSetIspOutFormat(m_hCamera, emCameraMediaType.CAMERA_MEDIA_TYPE_RGB8);
 
             // 新建视频播放线程
@@ -229,7 +233,8 @@ namespace HalconDemo
                     Thread.Sleep(10);
                 m_CapThread = null;
             }
-            // 再關閉相機、並釋放電腦中儲存相機相關資訊所花費的空間、讓空間可以重新利用。
+            // 若初始化的狀態為異常，則關閉相機、並釋放電腦中儲存相機相關資訊所花費的空間、讓空間可以重新利用。
+            // 且不執行後續指令
             if (m_hCamera != IntPtr.Zero)
             {
                 CKAPI.CameraUnInit(m_hCamera);

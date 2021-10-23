@@ -173,8 +173,9 @@ namespace Player
             for(int i = 0; i < devNum; i++)
             {
                 tDevEnumInfo devAllInfo;
-                // 獲得設備的狀態，如：有無找到設備、設備是否正常開啟，是否關閉等等。
-                // 並存入 devAllInfo 之中
+                // 查詢設備的狀態，如：有無找到設備、設備是否正常開啟，是否關閉、產品名稱、暱稱，驅動名稱、版本等等。
+                // 並將獲得的訊息存入 devAllInfo 之中
+                // 隨後回傳一個代表查詢過程狀態的狀態碼，儲存在 status 之中
                 status = CKAPI.CameraGetEnumIndexInfo(i, out devAllInfo);
                 if (status != CameraSdkStatus.CAMERA_STATUS_SUCCESS)
                     continue;
@@ -187,15 +188,18 @@ namespace Player
 
         private void CameraSetting()
         {
-            // 1. 在創建啟動畫面前，先設定"相機設置視窗"的啟動畫面。(但若此前置作業發生異常，則不繼續執行後續指令。)
-            // 2. 設定完"相機設置視窗"的啟動畫面後，創建一個新的相機設置視窗。(但若創建設置視窗時發生異常，則不繼續執行後續指令。)
-            // 最後，將創建好的"相機設置視窗"顯示出來。
+            // 1. 在創建啟動畫面前，先設定"相機訊息視窗"，如這裡是設定讓視窗呈現所有的訊息(包括設備訊息、曝光的頁面、解析度的頁面......)。(但若此前置作業發生異常，則不繼續執行後續指令。)
+            // 2. 設定完"相機訊息視窗"的畫面後，創建一個新的"相機訊息視窗"。(但若創建設置視窗時發生異常，則不繼續執行後續指令。)
+            // 最後，將創建好的"相機訊息視窗"顯示出來。
             if(m_hCamera != IntPtr.Zero)
             {
+                // 傳入將要被設定的相機(m_hCamera)，以及想要呈現哪些訊息(emSettingPage.SETTING_PAGE_ALL)，還有呈現訊息的視窗在其他視窗間的顯示順序編號(如此處為第一順位)
                 if (CKAPI.CameraSetActivePage(m_hCamera, emSettingPage.SETTING_PAGE_ALL, 0) != CameraSdkStatus.CAMERA_STATUS_SUCCESS)
                     return;
+                // 傳入相機的相關資訊，並創建該相機的"相機訊息視窗"，且會回傳在創建過程中的狀態(若狀態為異常，則不繼續執行後續指令)
                 if (CKAPI.CameraCreateSettingPageEx(m_hCamera) != CameraSdkStatus.CAMERA_STATUS_SUCCESS)
                     return;
+                // 傳入相機的資訊，以及是否顯示該視窗，此處是選擇顯示(傳入1則顯示)
                 CKAPI.CameraShowSettingPage(m_hCamera, 1);
             }
         }
@@ -208,8 +212,8 @@ namespace Player
             int index = this.comboBox_DeviceList.SelectedIndex;
             if (index < 0)
                 return false;
-            // 初始化選單中所勾選的裝置，並獲取剛剛初始化的裝置的位址訊息
-            // 獲取選單中所勾選相機資訊的同時，將訊息存入 m_hCamera 之中。
+            // 傳入即將初始化相機在其他相機之間的順位編號，初始化選單中所勾選的裝置，並獲取剛剛初始化的裝置的訊息(存放在電腦中的位址)
+            // 獲取選單中所勾選相機資訊的同時，將訊息存入 m_hCamera 之中
             // 若在獲取過程中有異常，則不繼續執行後續指令。
             CameraSdkStatus status = CKAPI.CameraInit(out m_hCamera, index);
             if(status != CameraSdkStatus.CAMERA_STATUS_SUCCESS)
@@ -217,21 +221,24 @@ namespace Player
                 m_hCamera = IntPtr.Zero;
                 return false;
             }
-            // 設定ISP輸出格式
-            // ISP是相機在處理影像時的核心流程，
+            // 設定影像處理的輸出格式
             // 這裡需要傳入"哪個相機"需要被設定(m_hCamera)，以及要設定成何種輸出模式，如普通彩色影像或具透明的彩色影像等等......
+            // 此處是設定成BGR三原色所組成的彩色影像
             status = CKAPI.CameraSetIspOutFormat(m_hCamera, emCameraMediaType.CAMERA_MEDIA_TYPE_BGR8);
-            // 初始化播放显示，设置显示图像的控件句柄
+            // 初始化顯示系統
+            // 傳入待顯示相機之資訊，以及要顯示於哪個視窗中(此處為顯示在this.pictureBox.Handle)。
+            // 並將剛剛初始化的狀態記錄在 status 之中
             status = CKAPI.CameraDisplayInit(m_hCamera, this.pictureBox.Handle);
             
-            // 再關閉相機、並釋放電腦中儲存相機相關資訊所花費的空間、讓空間可以重新利用。
+            // 若初始化的狀態為異常，則關閉相機、並釋放電腦中儲存相機相關資訊所花費的空間、讓空間可以重新利用。
+            // 且不執行後續指令
             if(status != CameraSdkStatus.CAMERA_STATUS_SUCCESS)
             {
                 CKAPI.CameraUnInit(m_hCamera);
                 m_hCamera = IntPtr.Zero;
                 return false;
             }
-            // 設定哪台相機顯示，及其顯示的模式
+            // 設定傳入相機顯示的模式，此處傳入剛剛初始化過後的 m_hCamera
             CKAPI.CameraSetDisplayMode(m_hCamera, 0);
 
             // 新建视频播放线程
