@@ -142,7 +142,7 @@ namespace Player
 
                 // 由於剛才已經獲得優化過的影像了，
                 // 故將處理前之影像獨佔在電腦裡空間的位址釋放掉，以便空間在未來重複利用
-                // (釋放一開始從 CameraGetRawImageBuffer 拿到的原始影像，儲存其資料的地址。
+                // (也就是釋放一開始從 CameraGetRawImageBuffer 拿到的原始影像，即儲存其資料的地址。
                 CKAPI.CameraReleaseFrameHandle(m_hCamera, hBuf);
             }
             // 將待暫停相機的資訊傳入，暫停相機影像顯示系統的運作。

@@ -126,6 +126,10 @@ namespace HalconDemo
                     m_isNeedSave = false;
                 }
                 //////////////////////////////////显示
+                // 顯示影像
+                // 傳入相機的資訊(m_hCamera)、
+                // 電腦中儲存影像的位址(pRGBFrame)、
+                // 影像的相關資訊(ImageInfo)如資料大小，解析度等等......
                 //CKAPI.CameraDisplay(m_hCamera, pRGBFrame, ref ImageInfo);
                 ///////////////////////////////////
 
@@ -133,10 +137,14 @@ namespace HalconDemo
                 HD.display(pRGBFrame, (int)ImageInfo.iWidth, (int)ImageInfo.iHeight, 2592, 1944);
 
                 // 4.優化儲存空間，釋放在[2.]時候存放之畫面所佔有的空間
-                // 釋放由 CameraGetRawImageBuffer 獲得的緩衝區
+                // 由於剛才已經獲得優化過的影像了，
+                // 故將處理前之影像獨佔在電腦裡空間的位址釋放掉，以便空間在未來重複利用
+                // (也就是釋放一開始從 CameraGetRawImageBuffer 拿到的原始影像資料在電腦中所佔有、儲存的地址。
                 CKAPI.CameraReleaseFrameHandle(m_hCamera, hBuf);
             }
             // 暫停顯示裝置
+            // 將待暫停相機的資訊傳入，暫停相機影像顯示系統的運作。
+            // 執行後會得到一個數值，用以代表執行期間的狀態(如：是否遇到異常)。
             CKAPI.CameraPause(m_hCamera);
         }
 
@@ -149,7 +157,8 @@ namespace HalconDemo
             //tSdkCameraDevInfo[] tCameraDevInfoList;
             int devNum = 0;
 
-            // 1.取得當前探測到的設備數目，並將數目記錄到 devNum，將狀態(成功與否)記錄到 status
+            // 1.取得當前探測到的設備數目，並將數目記錄到 devNum 之中
+            // 探測結束後回傳一個數值，以代表探測過程中的狀態，並儲存到 status 之中
             status = CKAPI.CameraEnumerateDevice(out devNum);
             // 若此時狀態是失敗的，則不繼續執行後續的指令。
             if (status != CameraSdkStatus.CAMERA_STATUS_SUCCESS)
@@ -182,10 +191,12 @@ namespace HalconDemo
             // 最後，將創建好的"相機校調視窗"顯示出來。
             if (m_hCamera != IntPtr.Zero)
             {
-                // 傳入將要被設定的相機(m_hCamera)，以及想要呈現哪些訊息(emSettingPage.SETTING_PAGE_ALL)，還有呈現訊息的視窗在其他視窗間的顯示順序編號(如此處為第一順位)
+                // 傳入將要被設定的相機(m_hCamera)，以及想要呈現哪些訊息(emSettingPage.SETTING_PAGE_ALL)，
+                // 還有呈現訊息的視窗在其他視窗間的顯示順序編號(如此處為第一順位)
                 if (CKAPI.CameraSetActivePage(m_hCamera, emSettingPage.SETTING_PAGE_ALL, 0) != CameraSdkStatus.CAMERA_STATUS_SUCCESS)
                     return;
-                // 傳入相機的相關資訊，並創建該相機的"相機訊息視窗"，且會回傳在創建過程中的狀態(若狀態為異常，則不繼續執行後續指令)
+                // 傳入相機的相關資訊，並創建該相機的"相機訊息視窗"，
+                // 且會回傳在創建過程中的狀態(若狀態為異常，則不繼續執行後續指令)
                 if (CKAPI.CameraCreateSettingPageEx(m_hCamera) != CameraSdkStatus.CAMERA_STATUS_SUCCESS)
                     return;
                 // 傳入相機的資訊，以及是否顯示該視窗，此處是選擇顯示(傳入1則顯示)

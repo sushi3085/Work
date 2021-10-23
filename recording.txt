@@ -86,6 +86,3 @@ CameraUnInit
 
 CameraSetDisplayMode
 // 設定哪台相機顯示，及其顯示的模式
-
-CameraSetIspOutFormat
-// 設定傳入相機顯示的模式
